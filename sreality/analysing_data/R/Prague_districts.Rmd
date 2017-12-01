@@ -1,0 +1,118 @@
+---
+title: "Mapping Prague's (CZ) districts"
+author: "DMPE @ GitHub"
+date: "August 19, 2017"
+output:
+  html_document:
+    fig_height: 6
+    fig_width: 8
+    self_contained: false
+    number_sections: yes
+    toc: yes
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data
+
+- <http://www.geoportalpraha.cz/cs/opendata> (Mapové podklady)
+
+- <http://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units/nuts>
+
+# Load packages
+
+```{r, warning=F, message=F}
+library(sf)
+library(foreign)
+library(rgdal)
+library(maps)
+library(rgdal)
+library(mapview)
+library(tmap)
+library(osmdata)
+```
+
+# Plot Europe
+
+```{r, echo=T, warning = F}
+tst <- read_sf("/home/jm/Downloads/NUTS_2013_01M_SH/data/NUTS_RG_01M_2013.shp")
+db <- read.dbf("/home/jm/Downloads/NUTS_2013_01M_SH/data/NUTS_AT_2013.dbf")
+
+tst_db <- merge(tst, db, by = "NUTS_ID")
+tst_europe <- tst_db[nchar(as.character(tst_db$NUTS_ID)) == 5, ]
+
+# display europe
+mapview(tst_europe)@map %>% setView(lat = 49.837982, lng = 12.216797, zoom = 3)
+```
+
+# Plot Prague as a whole
+
+```{r}
+# display prague
+tst_prague <- subset(tst_europe, substr(tst_europe$NUTS_ID, 1, 4) %in% c("CZ01", "CZ010", "CZ020"))
+mapview(tst_prague)
+```
+
+# Prague's city districts
+
+Prague's boroughs and neighborhoods
+
+```{r}
+tst_prague_metro_areas <- read_sf("/home/jm/Downloads/mapy_prahy/TMMESTSKECASTI_P_shp/TMMESTSKECASTI_P.shp")
+db_prague_metro_areas <- read.dbf("/home/jm/Downloads/mapy_prahy/TMMESTSKECASTI_P_shp/TMMESTSKECASTI_P.dbf")
+
+mapview(tst_prague_metro_areas, alpha.regions = 0.2, aplha = 1)@map %>% setView(lat = 50.07521, lng = 14.419556, zoom = 11)
+head(db_prague_metro_areas)
+```
+
+# (Real Estate) Price Map of Prague
+```{r, message=F, warning=F}
+tst_prague_price_map <- read_sf("/home/jm/Downloads/mapy_prahy/SED_CenovaMapa_p_shp/SED_CenovaMapa_p.shp")
+mapview(tst_prague_price_map)@map %>% setView(lat = 50.07521, lng = 14.419556, zoom = 11)
+tst_prague_price_map$geometry
+st_geometry(tst_prague_price_map)
+plot(st_geometry(tst_prague_price_map))
+
+point <- data.frame(lon=df_aprt_buy_most_recent$address_lon, lat=df_aprt_buy_most_recent$address_lat)
+sp1 <- st_as_sf(point, coords = c("lon", "lat"), crs = 4326, agr = "constant")
+
+mp <- st_point(data.matrix(point)[1,1:2])
+fdssz <- as.data.frame(st_contains(tst_prague_price_map, mp, sparse = F))
+
+
+sp1 <- st_point(c(14.413983613346799117,50.07952018861210064))
+fdz <- st_contains(tst_prague_price_map, sp1, sparse = F)
+dfz <- as.data.frame(fdz)
+dfz$rn <- rownames(dfz)
+which(dfz$V1 == TRUE) #<--- tam je ten lat/lon umisten
+as.numeric(tst_prague_price_map[which(dfz$V1 == TRUE), ][,1])[1]
+
+as <- data.frame(apply(st_contains(tst_prague_price_map, mp, sparse = F), 1, any))
+
+
+```
+
+# Other
+
+## Blocks of 1:25 000 areas
+```{r}
+tst_1 <- read_sf("/home/jm/Downloads/mapy_prahy/MAP_ZM25_Bloky25_p_shp/MAP_ZM25_Bloky25_p.shp")
+db_1 <- read.dbf("/home/jm/Downloads/mapy_prahy/MAP_ZM25_Bloky25_p_shp/MAP_ZM25_Bloky25_p.dbf")
+#mapview(tst_1)
+head(db_1)
+```
+
+## Symbols
+
+Whatever it means.
+
+```{r}
+tst_2 <- read_sf("/home/jm/Downloads/mapy_prahy/MAP_ZM25_Symboly25_l_shp/MAP_ZM25_Symboly25_l.shp")
+db_2 <- read.dbf("/home/jm/Downloads/mapy_prahy/MAP_ZM25_Symboly25_l_shp/MAP_ZM25_Symboly25_l.dbf")
+#mapview(tst_2)@map %>% setView(lat = 50.07521, lng = 14.419556, zoom = 12)
+head(db_2)
+```

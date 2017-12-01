@@ -1,0 +1,47 @@
+<<label=tab1,echo=FALSE,results=tex>>=
+library(xtable)
+
+df_aprt_buy_most_recent <- readRDS("RData/df_aprt_buy_most_recent.rds")
+
+data_to_summarize <- df_aprt_buy_most_recent[,c(21,23,24,27,32,43,44,48)]
+#data_to_summarize <- do.call(cbind, lapply(data_to_summarize, summary))
+
+print(xtable(summary(data_to_summarize, digits = 6), caption = "Apartments Buy Table", label = "tab:one",caption.placement = "top"))
+@
+
+
+<<label=tab2,echo=FALSE,results=tex>>=
+library(xtable)
+
+df_aprt_rent_most_recent <- readRDS("RData/df_aprt_rent_most_recent.rds")
+
+data_to_summarize <- df_aprt_rent_most_recent[,c(21,23,24,27,32,43,44,48)]
+#data_to_summarize <- do.call(cbind, lapply(data_to_summarize, summary))
+
+print(xtable(summary(data_to_summarize, digits = 6), caption = "Apartments Rent Table", label = "tab:one",caption.placement = "top"))
+@
+
+
+<<label=tab3,echo=FALSE,results=tex>>=
+library(xtable)
+
+df_hous_buy_most_recent <- readRDS("RData/df_hous_buy_most_recent.rds")
+
+data_to_summarize_h <- df_hous_buy_most_recent[,c(20,21,23,24,25,27,28,29,30,32,37,40,41,44,48)]
+#data_to_summarize_h <- do.call(cbind, lapply(data_to_summarize_h, summary))
+
+print(xtable(summary(data_to_summarize_h, digits = 6), caption = "Houses Buy Table", label = "tab:one",caption.placement = "top"))
+@
+
+<<label=tab4,echo=FALSE,results=tex>>=
+library(xtable)
+
+df_hous_rent_most_recent <- readRDS("RData/df_hous_rent_most_recent.rds")
+
+data_to_summarize_h <- df_hous_rent_most_recent[,c(20,21,23,24,25,27,28,29,30,32,37,40,41,44)]
+#data_to_summarize_h <- do.call(cbind, lapply(data_to_summarize_h, summary))
+
+print(xtable(summary(data_to_summarize_h, digits = 6), caption = "Houses Rent Table", label = "tab:one",caption.placement = "top"))
+@
+
+
